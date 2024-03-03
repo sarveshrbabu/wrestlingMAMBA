@@ -1,47 +1,70 @@
-# wrestlingMAMBA
+# Mamba-Chat 🐍
 
-Welcome to wrestlingMAMBA, a cutting-edge project focused on enhancing and stress testing the MOE (Mixture of Experts) MAMBA architecture.
+**Mamba-Chat is the first chat language model based on a state-space model architecture, not a transformer.**
 
-## Project Overview
+The model is based on Albert Gu's and Tri Dao's work *Mamba: Linear-Time Sequence Modeling with Selective State Spaces* ([paper](https://arxiv.org/pdf/2312.00752.pdf)) as well as their [model implementation](https://github.com/state-spaces/mamba). This repository provides training / fine-tuning code for the model based on some modifications of the Huggingface Trainer class.
 
-wrestlingMAMBA aims to build upon existing MOE Mamba models, specifically focusing on those that utilize switch circuits, a concept well-documented in existing literature. Our mission is to explore and identify architectural modifications that significantly improve model performance, both in terms of efficiency and effectiveness.
+Mamba-Chat is based on Mamba-2.8B and was fine-tuned on 16,000 samples of the [HuggingFaceH4/ultrachat_200k](https://huggingface.co/datasets/HuggingFaceH4/ultrachat_200k) dataset. To learn more, you can:
 
-### Milestone Goals
+- Take a look at the model on [Huggingface](https://huggingface.co/havenhq/mamba-chat) 🤗
+- Talk to us on the [Haven](https://haven.run/) Community [Discord](https://discord.com/invite/JDjbfp6q2G) 🧑‍🤝‍🧑
+- Talk to Mamba-Chat on [Google Colab](https://colab.research.google.com/drive/1dUlEYnRbgJYg4_kofNpsCddLCh6vltNK?usp=sharing)
 
-- **Baseline Implementation**: Our initial step involves creating a baseline MAMBA MOE model, drawing inspiration from existing code and literature surrounding switch circuits. This will serve as our foundation for further experimentation.
 
-- **Architectural Experiments**: With our baseline model established, we will embark on a series of experiments to test various architectural changes. Our objective is to pinpoint modifications that lead to superior performance metrics.
+<br>
 
-- **ALPACA Alignment**: A crucial phase of our project involves aligning our model with the ALPACA training gym. This alignment will not only provide a standardized framework for testing but also allow us to benchmark our model's performance against a well-defined set of criteria.
+## Run Mamba-Chat
 
-## Getting Started
+We provide code for testing and fine-tuning our model. Here's how to get started and what you can do with it:
 
-To get started with wrestlingMAMBA, please follow these steps:
+<br>
 
-1. **Clone the Repository**: Clone this repository to your local machine to gain access to the baseline code and resources.
 
-   ```
-   git clone <repository-url>
-   ```
+**Clone repository and install dependencies:**
+```
+git clone https://github.com/havenhq/mamba-chat.git
+cd mamba-chat
+pip install -r requirements.txt
+```
 
-2. **Install Dependencies**: Install the necessary dependencies listed in the `requirements.txt` file.
+<br>
 
-   ```
-   pip install -r requirements.txt
-   ```
+**Talk to Mamba-Chat (CLI chatbot):**
+```
+python chat.py
+```
 
-3. **Explore the Documentation**: Familiarize yourself with the project's structure and the existing implementation by reviewing the documentation provided in the `/docs` folder.
+<br>
 
-4. **Run Experiments**: Utilize the scripts in the `/experiments` folder to run your own architectural experiments. Detailed instructions for conducting these experiments are provided within the folder.
+**Talk to Mamba-Chat (gradio app):**
+```
+pip install gradio==4.8.0
+python app.py --share
+```
 
-## Contributing
+<br>
 
-We welcome contributions from the community! Whether you're interested in conducting experiments, suggesting architectural improvements, or providing feedback on our methods, your input is valuable to us. Please see the `CONTRIBUTING.md` file for more details on how to get involved.
+**Fine-Tune Mamba (the base model) on a subset of the Ultrachat dataset:**
+```
+python train_mamba.py --model state-spaces/mamba-2.8b --tokenizer EleutherAI/gpt-neox-20b --learning_rate 5e-5 --batch_size 4 --data_path ./data/ultrachat_small.jsonl --num_epochs 3
+```
 
-## License
+<br>
 
-This project is licensed under the MIT License - see the `LICENSE` file for details.
+**If you have a 24GB card (3090, 4090, etc.) you can use these settings:**
+```
+python train_mamba.py --model state-spaces/mamba-2.8b --tokenizer EleutherAI/gpt-neox-20b --learning_rate 5e-5 --batch_size 1 --gradient_accumulation_steps 4 --optim paged_adamw_8bit --data_path ./data/ultrachat_small.jsonl --num_epochs 3
+```
 
-## Contact
+## Citation
 
-For any questions or suggestions, please reach out to any of us via email (sarveshb@stanford.edu, leba@stanford.edu, and danguo@stanford.edu).
+```
+bibtex
+@misc{haven2023mambachat,
+  title        = {Mamba-Chat},
+  author       = {Justus Mattern and Konstantin Hohr},
+  year         = {2023},
+  howpublished = {GitHub},
+  url          = {https://github.com/havenhq/mamba-chat}
+}
+```
