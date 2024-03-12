@@ -1,0 +1,5 @@
+bitsandbytes
+accelerate
+--upgrade transformers
+--upgrade peft
+--upgrade datasets
