@@ -4,29 +4,6 @@ from peft import prepare_model_for_kbit_training, PeftModel, PeftConfig, LoraCon
 import torch
 import wandb
 
-'''
-#install the funtune nonsense
-#import subprocess
-
-#def install_package(command):
-    #try:
-        #subprocess.run(command, check=True, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        #print("Package installed successfully.")
-    #except subprocess.CalledProcessError as e:
-        #print("Failed to install package.")
-        #print(e.output.decode())
-
-#major_version, minor_version = torch.cuda.get_device_capability()
-
-#if major_version >= 8:
-    ## Use this for new GPUs like Ampere, Hopper GPUs (RTX 30xx, RTX 40xx, A100, H100, L40)
-    #install_package("pip install 'unsloth[colab-ampere] @ git+https://github.com/unslothai/unsloth.git'")
-#else:
-    # Use this for older GPUs (V100, Tesla T4, RTX 20xx)
-    #install_package("pip install 'unsloth[colab] @ git+https://github.com/unslothai/unsloth.git'")
-
-'''
-
 # Import and configure pretrained model from HuggingFace
 model_name = "EleutherAI/pythia-2.8b"
 bnb_config = BitsAndBytesConfig(
@@ -50,20 +27,12 @@ model.gradient_checkpointing_enable()
 model = prepare_model_for_kbit_training(model)
 
 # Initialize LoRa config
-# Initialize LoRa config
 config = LoraConfig(
     r = 16, # Choose any number > 0 ! Suggested 8, 16, 32, 64, 128
-    #target_modules = ["q_proj", "k_proj", "v_proj", "o_proj",
-    #                  "gate_proj", "up_proj", "down_proj",],
     target_modules = ["query_key_value", "dense", "dense_h_to_4h", "dense_4h_to_h"],
     lora_alpha = 16,
     lora_dropout = 0, # Supports any, but = 0 is optimized
     bias = "none",    # Supports any, but = "none" is optimized
-
-    # use_gradient_checkpointing = True,
-    # random_state = 3407,
-    # use_rslora = False,  # We support rank stabilized LoRA
-    # loftq_config = None, # And LoftQ
 )
 model = get_peft_model(model, config)
 model.print_trainable_parameters()
@@ -99,10 +68,10 @@ trainer = SFTTrainer(
     dataset_num_proc = 2,
     packing = False, # Can make training 5x faster for short sequences.
     args = TrainingArguments(
+        num_train_epochs=1,
         per_device_train_batch_size = 2,
         gradient_accumulation_steps = 4,
         warmup_steps = 5,
-       # max_steps = 60,
         learning_rate = 2e-4,
         fp16 = not torch.cuda.is_bf16_supported(),
         bf16 = torch.cuda.is_bf16_supported(),
@@ -112,8 +81,7 @@ trainer = SFTTrainer(
         lr_scheduler_type = "linear",
         seed = 3407,
         output_dir = "outputs",
-        #report_to="wandb",
-        use_cache=False,
+        report_to="wandb",
     ),
 )
 
