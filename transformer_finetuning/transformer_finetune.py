@@ -4,6 +4,12 @@ from peft import prepare_model_for_kbit_training, PeftModel, PeftConfig, LoraCon
 import torch
 import wandb
 
+import os
+
+os.environ["WANDB_PROJECT"]="gemma"
+
+wandb.init()
+
 # Import and configure pretrained model from HuggingFace
 model_name = "EleutherAI/pythia-2.8b"
 bnb_config = BitsAndBytesConfig(
