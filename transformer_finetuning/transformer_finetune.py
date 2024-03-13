@@ -5,13 +5,11 @@ import torch
 import wandb
 
 import os
-
 os.environ["WANDB_PROJECT"]="gemma"
-
 wandb.init()
 
 # Import and configure pretrained model from HuggingFace
-model_name = "EleutherAI/pythia-2.8b"
+model_name = "google/gemma-2b"
 bnb_config = BitsAndBytesConfig(
     load_in_8bit=True,
     bnb_8bit_compute_dtype=torch.bfloat16
@@ -35,7 +33,7 @@ model = prepare_model_for_kbit_training(model)
 # Initialize LoRa config
 config = LoraConfig(
     r = 16, # Choose any number > 0 ! Suggested 8, 16, 32, 64, 128
-    target_modules = ["query_key_value", "dense", "dense_h_to_4h", "dense_4h_to_h"],
+    target_modules = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
     lora_alpha = 16,
     lora_dropout = 0, # Supports any, but = 0 is optimized
     bias = "none",    # Supports any, but = "none" is optimized
